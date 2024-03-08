@@ -18,6 +18,13 @@ def create_app(test_config=None):
         database_path = test_config.get('SQLALCHEMY_DATABASE_URI')
         setup_db(app, database_path=database_path)
 
+
+    @app.route('/')
+    def test():
+        print('hello')
+        return jsonify({
+            "success" : True
+        })
     """
     @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
     """
