@@ -18,26 +18,55 @@ def create_app(test_config=None):
         database_path = test_config.get('SQLALCHEMY_DATABASE_URI')
         setup_db(app, database_path=database_path)
 
-
+    """
+    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+    """
+    CORS(app, resources={ r"/*": 
+                         {"origins": "*"}})
+    
     @app.route('/')
     def test():
         print('hello')
         return jsonify({
             "success" : True
         })
-    """
-    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-    """
 
     """
     @TODO: Use the after_request decorator to set Access-Control-Allow
     """
+    @app.after_request
+    def after_request(response):
+        response.headers.add("Access-Control-Allow-Origin", "Content-Type,Authorization,true")
+        response.headers.add(
+            "Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS"
+        )
+        return response
+
+ 
 
     """
     @TODO:
     Create an endpoint to handle GET requests
     for all available categories.
     """
+    @app.route('/categories', methods=['GET'])
+    def get_categories():
+        try:
+            categories = Category.query.order_by(Category.id).all()
+
+            # dictionary required to hold all catergories, matching with how front end needs the data
+            categories_dict = {}
+            # adding all categories to the dict
+            for category in categories:
+                categories_dict[category.id] = category.type
+
+            return jsonify({
+            "success" : True,
+            "categories" : categories
+        })
+
+        except:
+            abort(404)
 
 
     """
@@ -52,6 +81,32 @@ def create_app(test_config=None):
     ten questions per page and pagination at the bottom of the screen for three pages.
     Clicking on the page numbers should update the questions.
     """
+    @app.route('/questions')
+    def retrive_questions():
+
+        questions = Question.query.order_by(Question.id).all()
+        current_questions = paginate_questions(request, questions)
+
+        if len(current_questions) == 0:
+            abort(404)
+
+        categories = Category.query.all()
+        categories_dict = {}
+
+        for category in categories:
+            categories_dict[category.id] = category.type
+
+        return jsonify(
+            {
+                "success": True,
+                "questions": current_questions,
+                "categories": categories_dict,
+                "current_category": "Science",
+                "total_questions": len(questions)
+            }
+        )
+
+
 
     """
     @TODO:
@@ -109,6 +164,26 @@ def create_app(test_config=None):
     Create error handlers for all expected errors
     including 404 and 422.
     """
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return (
+            jsonify({"success": False, "error": 404, "message": "resource not found"}),
+            404,
+        )
+    
+    """
+    Helper methods
+    """
+    def paginate_questions(request, selection):
+        page = request.args.get("page", 1, type=int)
+        start = (page - 1) * QUESTIONS_PER_PAGE
+        end = start + QUESTIONS_PER_PAGE
+
+        questions = [question.format() for question in selection]
+        current_questions = questions[start:end]
+
+        return current_questions
 
     return app
 
