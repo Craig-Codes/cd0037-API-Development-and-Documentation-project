@@ -236,13 +236,33 @@ def create_app(test_config=None):
     """
     @app.route("/categories/<id>/questions", methods=['GET'])
     def get_questions_by_category(id):
-        print('hit')
-        print(id)
+        # change id to int so that 1 can be added (categories start from 1 not 0)
+        converted_id = int(id) + 1
+                
+        if(converted_id <= 0):
+            abort(404)
 
-        return jsonify({
-            "success": True,
-            "id" : id
-        })
+        categories = Category.query.all()
+    
+        if(converted_id > len(categories)):
+            abort(404)
+
+        try:
+            questions = Question.query.filter_by(category=converted_id).all()
+            print(questions)
+            paginated_questions = paginate_questions(request,questions)
+
+
+            return jsonify({
+                "success": True,
+                "questions": paginated_questions,
+                "currentCategory": id
+
+            })
+        
+        except:
+            abort(404)
+
 
     """
     @TODO:
