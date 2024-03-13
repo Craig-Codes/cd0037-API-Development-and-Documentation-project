@@ -201,15 +201,12 @@ def create_app(test_config=None):
         if (request_body is None):
             abort(404)
         else:
-            print(request_body['searchTerm'])
             search_term = request_body['searchTerm']
 
             results = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
-            print(results)
 
             paginated_results = paginate_questions(request,results
                                                    )
-            
             categories = Category.query.all()
             # list required to hold all catergories, matching with how front end needs the data
             categories_list = []
@@ -275,6 +272,40 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not.
     """
+
+    @app.route("/quizzes", methods = ["POST"])
+    def quiz():
+
+        request_body = request.get_json()
+
+        if (request_body is None):
+            abort(422)
+
+        category = request_body['quiz_category']
+        previous_questions = request_body['previous_questions']
+
+        print(previous_questions)
+
+        if category["type"] == "click" : # check if catergory is ALL
+           questions = Question.query.all()
+        else:
+           converted_id = int(category["id"]) + 1
+           # get question by category, ensuring the question id is not in the previous questions list
+           questions = Question.query.filter(Question.id.notin_(previous_questions), Question.category==converted_id).all()
+           
+           if(len(questions) > 0):
+                return jsonify({
+                    "success" : True,
+                    "question": Question.format(questions[0]),
+                    "previousQuestions" : previous_questions,
+                    "category":category,
+                })      
+           else:
+                return jsonify({
+                    "success" : True,
+                    "previousQuestions" : previous_questions,
+                    "category":category,
+                })     
 
     """
     @TODO:
