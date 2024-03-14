@@ -26,7 +26,6 @@ def create_app(test_config=None):
     
     @app.route('/')
     def test():
-        print('hello')
         return jsonify({
             "success" : True
         })
@@ -123,7 +122,6 @@ def create_app(test_config=None):
     def delete_question(question_id):
         try:
             question = Question.query.get(question_id)
-            print(question)
 
             if question is None:
                 abort(404)
@@ -134,13 +132,13 @@ def create_app(test_config=None):
                 return jsonify({
                     'success' : True,
                     "deleted" : question_id,
-                    'message' : f'Question ${question_id} deleted',
+                    'message' : f'Question {question_id} deleted',
                     "questions": paginate_questions(request, Question.query.order_by(Question.id).all()),
                     "total_questions": len(Question.query.all()),
                 })
 
         except:
-            abort(422)
+            abort(404)
     
 
     """
@@ -159,10 +157,10 @@ def create_app(test_config=None):
         try:
             request_body = request.get_json()
             
-            question = request_body.get('question')
-            answer = request_body.get('answer')
-            difficulty = request_body.get('difficulty')
-            category = request_body.get('category')
+            question = request_body.get('question', '')
+            answer = request_body.get('answer', '')
+            difficulty = request_body.get('difficulty', '')
+            category = request_body.get('category', '')
         
         except:
             abort(422)
@@ -201,7 +199,7 @@ def create_app(test_config=None):
         if (request_body is None):
             abort(404)
         else:
-            search_term = request_body['searchTerm']
+            search_term = request_body.get('searchTerm', '')
 
             results = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
 
@@ -246,7 +244,6 @@ def create_app(test_config=None):
 
         try:
             questions = Question.query.filter_by(category=converted_id).all()
-            print(questions)
             paginated_questions = paginate_questions(request,questions)
 
 
@@ -281,10 +278,9 @@ def create_app(test_config=None):
         if (request_body is None):
             abort(422)
 
-        category = request_body['quiz_category']
-        previous_questions = request_body['previous_questions']
+        category = request_body.get('quiz_category', '')
+        previous_questions = request_body.get('previous_questions','')
 
-        print(previous_questions)
 
         if category["type"] == "click" : # check if catergory is ALL
            questions = Question.query.all()
@@ -323,7 +319,7 @@ def create_app(test_config=None):
     @app.errorhandler(422)
     def unprocessable(error):
         return (
-            jsonify({"success": False, "error": 422, "message": "unprocessable Content"}),
+            jsonify({"success": False, "error": 422, "message": "unprocessable content"}),
             422,
         )
     

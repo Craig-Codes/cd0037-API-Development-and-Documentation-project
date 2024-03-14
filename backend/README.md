@@ -77,7 +77,7 @@ You will need to provide detailed documentation of your API endpoints including 
 
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
-- Returns: An object with a single key, `categories`, that contains an object of `id: category_string` key: value pairs.
+- Returns: An object with a two keys, `categories`, that contains an object of `id: category_string` key: value pairs and 'total categories', which contains the int value of the number of categories. .
 
 ```json
 {
@@ -88,7 +88,153 @@ You will need to provide detailed documentation of your API endpoints including 
   "5": "Entertainment",
   "6": "Sports"
 }
+
+{
+  "total_categories": 6
+}
 ```
+
+`GET '/api/v1.0/questions'`
+
+- Fetches a dictionary of questions, with each question containing the its id, question, answer, category id, and difficulty
+- Request Arguments: None
+- Returns: An Object with four keys,
+  - `questions`, that contains an object of `id: int_id` `question: string_question_content` `answer: string_answer` `category: int_category_id` `difficulty: int_difficulty`.
+  - `total_questions` is an object with the integer value of the total number of questions.
+  - `categories` is an object containing a list of all category types within the questions.
+  - `total_categories` is an object containing the integer value of the number of categories within the questions.
+
+```json
+{
+ "questions": "Question[]",
+  }
+
+{
+"total_questions":"5"
+}
+
+{
+"categories":"Science, Art, Geography, History, Entertainment, Sports"
+}
+
+{
+  "total_categories":"6"
+}
+```
+
+`DELETE '/api/v1.0/questions/<question_id>'`
+
+- Deletes a particular question from the API database
+- Request Arguments: question_id from query params
+- Returns: An object containing three keys,
+  - `deleted: int_question_id` - the id of the deleted question
+  - `message`, containing the question id which was deleted
+  - `questions`, an array of `questions` objects, that contain: `id: int_id` `question: string_question_content` `answer: string_answer` `category: int_category_id` `difficulty: int_difficulty`
+  - `total_questions` is an object with the integer value of the total number of questions
+
+```json
+{
+  "deleted":6
+
+}
+
+{
+  "message":"Question 6 deleted",
+  "questions": "Question[]",
+  }
+
+{
+  "total_questions":"26"
+}
+```
+
+`POST '/api/v1.0/questions/'`
+
+- Adds a new question to the database
+- Request Arguments: question, answer, difficulty, and category from request body
+- Returns: an object with four properties,
+  - `question`: string representing the question text
+  - `answer`:string representing the question answer
+  - `category`: integer representing the question category
+  - `difficulty`: integer representing the question difficulty
+
+```json
+{
+  "questions": "New Question Text",
+  "answer": "New Question Answer",
+  "category": "1",
+  "difficulty": "1"
+}
+```
+
+`POST '/api/v1.0/questions/search'`
+
+- API searches through the questions, using pattern matching
+- Request Arguments: searchTerm, a string used for pattern matching in the dataset
+- Returns: an object of four keys,
+  - `questions`, an array of `questions` objects, that contain: `id: int_id` `question: string_question_content` `answer: string_answer` `category: int_category_id` `difficulty: int_difficulty`
+  - `total_questions` is an object with the integer value of the total number of questions
+  - `categories` is an object containing a list of all category types within the questions.
+  - `total_categories` is an object containing the integer value of the number of categories within the questions.
+
+```json
+{
+  {
+"categories":"Science, Art, Geography, History, Entertainment, Sports"
+}
+
+{
+ "questions": "Question[]",
+}
+
+{
+"total_questions":"5"
+}
+
+
+{
+  "total_categories":"6"
+}
+```
+
+`GET '/api/v1.0/categories/<id>/questions'`
+
+- Returns all questions of a particular category
+- Request Arguments: id, which is used to determine the category of feedback to be returned
+- Returns: an object of four keys,
+  - `questions`, an array of `questions` objects, that contain: `id: int_id` `question: string_question_content` `answer: string_answer` `category: int_category_id` `difficulty: int_difficulty`
+  - `total_questions` is an object with the integer value of the total number of questions
+  - `categories` is an object containing a list of all category types within the questions.
+  - `total_categories` is an object containing the integer value of the number of categories within the questions.
+
+```json
+{
+ "questions": "Question[]",
+}
+
+{
+"total_questions":"5"
+}
+
+{
+"categories":"Science, Art, Geography, History, Entertainment, Sports"
+}
+
+{
+  "total_categories":"6"
+}
+```
+
+`POST '/api/v1.0/quizzes'`
+
+- Starts the quiz, returning a question, a list of previous questions, and the chosen category of the quiz
+- Request Arguments:
+  - quiz_category - the question category selected
+  - previous_questions - a list of previous questions, keeping track of what has already been asked so that questions are not repeated
+- Returns: an object of three keys,
+  - `question`: string containing the question
+  - `previous_questions`, an array of `questions` objects, that contain: `id: int_id` `question: string_question_content` `answer: string_answer` `category: int_category_id` `difficulty: int_difficulty`
+  - `category`: integer representing the question category
 
 ## Testing
 
